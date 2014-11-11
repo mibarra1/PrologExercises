@@ -4,31 +4,9 @@ clausulas(S):- write(S),
                write('.'), nl,
                fail.
 
-convert(IN,OUT):- read(S), 
-                 (S == end_of_file -> OUT = IN;
-                  convert([S|IN],OUT)).
+convert:- read(S), 
+         (S \== end_of_file) -> (write(S), writeln('.'), convert);seen.
 
-convertList([],[]).
-convertList([S|C], [[S1|[E]]|NList]):-
-           (( arg(1, S, S1),                                                                        
-              arg(2, S, C1),
-           ((functor(C1, ',', _),
-             convEcu(C1, E));                       
-             E = [C1]) );                                            
-            (S1 = S, E = [] )),                                                     
-%           write_term(S1, [partial(true)]), nl,                                                                   
-%           write_term(E, [partial(true)]), nl,                                                            
-           convertList(C, NList).
-
-convEcu(B, E) :- %write(B),nl,
-        (functor(B, ',' ,_),                                  
-         arg(1, B, E),                                          
-         arg(2, B, Args),
-         convEcu(Args, Args2),
-         append(Args2, [E], E));
-        E = [B].
- %       write_term(E, [partial(true)]), nl,
- %       write_term(B, [partial(true)]), nl.
 
 
 parseri:- write('Ingrese el nombre del fichero a crear'),nl,
@@ -42,12 +20,39 @@ parseri:- write('Ingrese el nombre del fichero a crear'),nl,
           told,
           see(N). 
 
-parsero:- convert([],R),
-          reverse(R,LIST),
-	 % write(LIST),
-          seen, 
-          convertList(LIST,NList),
-          write(NList).      
+parsero:- convert,
+	  see('ejemplo.pl'),
+          listar([]).
+
+primero([Uno|_],Uno).
+
+segundo([_,Dos|_], Dos).
+
+listar(L):-
+      read(X),
+      (X \== end_of_file)->
+      listar1(X,L,Z),
+      listar(Z);
+      write(L),seen.
+
+listar1(X,L,Z):-
+	functor(X,Y,_),
+	(Y == (:-))->
+        X =..Lista,
+        elimina(:-,Lista,R),
+        primero(R,Uno),
+        segundo(R,S),
+        Dos=[S|[]],
+        K=[Uno,Dos|[]],
+        RR=[K|[]],
+        append(L,RR,Z);
+	A=[X|[[]|[]]],
+	P=[A|[]],
+	append(L,P,Z).
+
+
+elimina(X,[X|T],T).
+              
                  		     
 parser:- parseri, parsero.
 
